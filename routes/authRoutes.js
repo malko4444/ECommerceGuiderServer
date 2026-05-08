@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 // import User from "../models/User.js";
 
 import { sendOTPEmail } from "../utils/sendEmail.js";
-import User from "../models/user.js";
+import User from "../models/User.js";
 import Otp from '../models/Otp.js'
 import { protect } from "../middleware/auth.js";
 
