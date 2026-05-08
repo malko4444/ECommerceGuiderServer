@@ -1,0 +1,181 @@
+================================================================
+  GMAIL APP PASSWORD — SETUP GUIDE
+  For sending emails from a Node.js / Nodemailer backend
+================================================================
+
+WHAT IS THIS?
+-------------
+An "App Password" is a 16-character code Google gives you so that
+apps (like your Node.js backend) can send email through your Gmail
+account via SMTP, without using your real Google account password.
+
+You need this because Google no longer allows "less secure apps"
+to sign in with a regular password.
+
+
+----------------------------------------------------------------
+  STEP 1 — ENABLE 2-STEP VERIFICATION (REQUIRED)
+----------------------------------------------------------------
+
+App Passwords are ONLY available if 2-Step Verification is
+turned on for your Google account.
+
+ 1. Open: https://myaccount.google.com/security
+ 2. Find the section "How you sign in to Google".
+ 3. Click "2-Step Verification".
+ 4. Follow the prompts (add a phone number or use an
+    authenticator app).
+ 5. Finish until it shows "2-Step Verification: ON".
+
+If 2-Step Verification is already on, skip to Step 2.
+
+
+----------------------------------------------------------------
+  STEP 2 — CREATE AN APP PASSWORD
+----------------------------------------------------------------
+
+ 1. Go directly to: https://myaccount.google.com/apppasswords
+
+    (If that page says "The setting you are looking for is not
+     available for your account," it means 2-Step Verification
+     isn't on yet, OR you're on a Workspace/school account where
+     an admin has disabled app passwords. Use a personal Gmail
+     account instead.)
+
+ 2. Sign in again if Google asks.
+
+ 3. In the "App name" field, type any label you want, e.g.:
+       Node Mailer
+       Student Mentor Backend
+       My FYP App
+
+    This label is only for you — it has no effect on how the
+    password works.
+
+ 4. Click "Create".
+
+ 5. A yellow box appears with a 16-character password shown in
+    4 groups of 4 letters, for example:
+
+        abcd efgh ijkl mnop
+
+ 6. COPY IT IMMEDIATELY. Google will only show it once.
+    If you lose it, you have to generate a new one.
+
+
+----------------------------------------------------------------
+  STEP 3 — ADD THE KEY TO YOUR .env FILE
+----------------------------------------------------------------
+
+Open the .env file in your backend project folder (create it
+in the project root if it doesn't exist) and add these 5 lines:
+
+----------------------------------------------------------------
+MAIL_USERNAME=[email protected]
+MAIL_PASSWORD=abcdefghijklmnop
+MAIL_FROM=[email protected]
+MAIL_PORT=587
+MAIL_SERVER=smtp.gmail.com
+----------------------------------------------------------------
+
+Replacements to make:
+
+ - MAIL_USERNAME
+   → Your Gmail address (the one you used to generate the
+     app password).
+
+ - MAIL_PASSWORD
+   → The 16-character app password from Step 2.
+   → Remove the spaces when pasting. Example:
+         Google shows:  abcd efgh ijkl mnop
+         You write:     abcdefghijklmnop
+   → Do NOT wrap it in quotes.
+   → Do NOT add trailing spaces.
+
+ - MAIL_FROM
+   → The "from" address shown to recipients. Usually the same
+     as MAIL_USERNAME.
+
+ - MAIL_PORT
+   → 587 (standard submission port with STARTTLS)
+   → Use 465 only if you also set secure:true in nodemailer.
+
+ - MAIL_SERVER
+   → Always smtp.gmail.com for Gmail accounts.
+
+
+----------------------------------------------------------------
+  STEP 4 — VERIFY IT WORKS
+----------------------------------------------------------------
+
+ 1. Save the .env file.
+
+ 2. FULLY RESTART your server (Ctrl+C then start again).
+    .env changes do NOT reload automatically.
+
+ 3. Add this temporary debug print at the top of the file that
+    creates the mailer, to confirm the values loaded correctly:
+
+        console.log("MAIL_USERNAME:", process.env.MAIL_USERNAME);
+        console.log("MAIL_PASSWORD length:", process.env.MAIL_PASSWORD?.length);
+
+    The length MUST print exactly 16. If it prints undefined
+    or any other number, your .env is not loading properly.
+
+ 4. Try sending a test email. If Gmail accepts the credentials,
+    you'll see an SMTP success response instead of the
+    535-5.7.8 error.
+
+
+----------------------------------------------------------------
+  COMMON MISTAKES AND FIXES
+----------------------------------------------------------------
+
+X  "Username and Password not accepted" (error 535-5.7.8)
+   → The app password is wrong, mistyped, or has extra
+     spaces/characters. Count the letters — must be exactly 16.
+   → Or the app password was generated under a DIFFERENT
+     Google account than the one in MAIL_USERNAME.
+
+X  MAIL_PASSWORD length prints as undefined
+   → dotenv is not loading. Make sure:
+        import "dotenv/config";
+     is at the TOP of your entry file (server.js / app.js),
+     above all other imports.
+   → Or the .env file is in the wrong folder. It must be in
+     the same folder you run `node` from — usually the
+     project root, not inside /src.
+
+X  "Can't find App Passwords page"
+   → 2-Step Verification isn't on (do Step 1).
+   → Or this is a Workspace / school / work account and the
+     admin has disabled app passwords. Use a personal account.
+
+X  Nothing happens, connection hangs
+   → Your network blocks port 587. Try port 465 with
+     secure: true in your nodemailer config.
+
+
+----------------------------------------------------------------
+  SECURITY REMINDERS
+----------------------------------------------------------------
+
+ 1. NEVER commit your .env file to Git.
+    Add this line to .gitignore:
+        .env
+
+ 2. NEVER share your .env in chat, screenshots, or forums.
+    An app password can be used to send email as you until
+    you revoke it.
+
+ 3. If you ever leak an app password:
+    → Go to https://myaccount.google.com/apppasswords
+    → Click the trash icon next to the compromised password
+    → Generate a new one and update .env
+
+ 4. You can have multiple app passwords at once. Give each
+    one a clear name so you know which project uses which.
+
+================================================================
+  END OF GUIDE
+================================================================
