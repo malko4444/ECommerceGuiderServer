@@ -35,7 +35,7 @@ router.post("/login", async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 });
-
+https://ecommerceguiderserver.onrender.com/auth/otpGenerate
 
 // ✅ Generate OTP and send email
 router.post("/otpGenerate", async (req, res) => {
