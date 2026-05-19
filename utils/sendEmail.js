@@ -4,16 +4,27 @@ import dotenv from "dotenv";
 dotenv.config();
 
 // Single shared transporter — reused by every send-email helper below.
-const buildTransporter = () =>
-  nodemailer.createTransport({
-    host: process.env.MAIL_SERVER,
-    port: process.env.MAIL_PORT,
-    secure: false, // true for 465, false for 587
+const buildTransporter = () => {
+  return nodemailer.createTransport({
+    host: process.env.MAIL_SERVER, // smtp.gmail.com
+    port: Number(process.env.MAIL_PORT), // 587
+    secure: Number(process.env.MAIL_PORT) === 465, // true for 465, false for 587
+
     auth: {
       user: process.env.MAIL_USERNAME,
       pass: process.env.MAIL_PASSWORD,
     },
+
+    // Prevent request from hanging forever on Render
+    connectionTimeout: 10000, // 10 seconds
+    greetingTimeout: 10000,   // 10 seconds
+    socketTimeout: 10000,     // 10 seconds
+
+    tls: {
+      rejectUnauthorized: false,
+    },
   });
+};
 
 // Tiny HTML escape — never trust user-typed content in mail bodies.
 const esc = (s = "") =>

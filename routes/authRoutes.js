@@ -64,6 +64,7 @@ router.post("/otpGenerate", async (req, res) => {
   }
 });
 
+
 // ✅ Signup with OTP verification
 router.post("/signup", async (req, res) => {
   try {
